@@ -3,6 +3,11 @@
 # 核心依赖
 requests>=2.28.0  # HTTP调用（作为SDK的备选方案）
 
+# Web Demo 依赖
+fastapi>=0.110.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+
 # ========== LLM API客户端（按需安装）==========
 
 # 通义千问 (推荐)

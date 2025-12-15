@@ -1,243 +1,220 @@
-# 算法面试教练 V2
+# LeetCoach（算法面试教练）
 
-一个对话式的算法面试练习系统，通过苏格拉底式教学帮助用户提升解题能力。
+LeetCoach 是一个对话式的算法面试练习系统：你可以像在真实面试中一样用自然语言沟通、提交代码、请求提示；系统会在内部用状态机编排流程，并通过大语言模型（LLM）以“苏格拉底式提问 + 渐进提示”的方式推动你自己发现问题、修正思路，直到完成一道题。
 
-## 🎯 核心特点
+该仓库目录名可能仍为 `interview-coach-v2`（历史原因），但本文档与对外展示统一使用 **LeetCoach**。
 
-- **自然对话**：用户界面呈现为普通聊天，无阶段显示
-- **动态引导**：所有回复由LLM实时生成，不使用预设模板
-- **智能评估**：自动判断代码正确性并决定下一步行动
-- **循序渐进**：最多5次引导机会，之后给出详细教学
-- **多LLM支持**：支持通义千问、OpenAI、Anthropic等多种LLM
+## 1. 你能获得什么
 
-## 📋 流程设计
+- **自然对话训练**：像聊天一样练题，不强制表单/步骤化界面
+- **可控的训练流程**：内部状态机将一次练题拆成“等待代码 → 引导 → 追问 → 教学 → 完成”
+- **自动代码评估与分流**：根据你的输入（代码/思路/求助/跳过）决定下一步策略
+- **渐进式提示**：最多 5 次引导（提示强度逐步提升），仍未解决则进入教学阶段
+- **多模型支持**：Mock（开发/测试）、通义千问、OpenAI、Anthropic
+- **可测试**：提供 `pytest` 用例覆盖关键会话分支，便于回归
 
-```
-用户提交代码
-    │
-    ├─── 正确 ───► 追问3个问题 ───► 完成
-    │
-    ├─── 错误 ───► 开始引导对话
-    │
-    └─── 请求帮助 ───► 开始引导对话
-                          │
-                     ┌────┴────┐
-                     │ 动态引导 │◄──┐
-                     └────┬────┘    │
-                          │         │
-                      答对了？      │
-                      │    │        │
-                     是    否───────┘
-                      │    (次数<5)
-                      ▼
-                    追问     次数≥5
-                             │
-                             ▼
-                   给出答案+教学 ───► 结束
+## 2. 工作流（高层概览）
+
+```text
+用户输入（代码/思路/求助/跳过）
+  ├─ 识别为代码提交
+  │    ├─ 评估为正确  -> 进入追问（默认 3 问） -> 完成
+  │    └─ 评估为错误  -> 进入引导（最多 5 轮） -> 教学 -> 完成
+  └─ 识别为求助/讨论
+       -> 进入引导（最多 5 轮） -> 教学 -> 完成
 ```
 
-## 🚀 快速开始
+## 3. 项目结构（按职责划分）
 
-### 安装
+```text
+interview-coach-v2/
+  src/                 # CLI 主程序 + 核心编排逻辑
+    main.py            # CLI 入口：python -m src.main
+    coach_engine.py    # 会话状态机/编排器（核心）
+    llm_client.py      # LLM 客户端抽象 + Mock/Qwen/OpenAI/Anthropic 适配
+    prompt_library.py  # 统一的 Prompt 构建库（意图识别/评估/引导/追问/教学）
+    problem_library.py # 题库与测试用例
+    models.py          # Session / Phase / State 等数据模型
+  frontend/            # 可选 Web Demo（FastAPI + 静态页面）
+  config/              # 配置（环境变量读取等）
+  tests/               # 自动化测试（pytest）
+  test_qwen.py          # 通义千问连通性测试脚本
+  requirements.txt
+  README.md
+```
+
+## 4. 环境准备
+
+- Python：建议 **3.9+**
+- 安装依赖：
 
 ```bash
-cd interview-coach-v2
 pip install -r requirements.txt
 ```
 
-### 运行
+## 5. 运行（CLI，推荐从这里开始）
+
+> 入口在 `src/main.py`，因此运行命令统一为 `python -m src.main`。
+
+### 5.1 Mock 模式（无需任何 API Key）
 
 ```bash
-# Mock模式（开发/测试，不需要API密钥）
 python -m src.main
+```
 
-# 使用通义千问（推荐）
+说明：若你选择真实 Provider 但连接失败，程序也会自动回退到 Mock。
+
+### 5.2 通义千问（Qwen）
+
+Bash：
+
+```bash
 export DASHSCOPE_API_KEY="your-key"  # 或 QWEN_API_KEY
 python -m src.main --provider qwen
-
-# 使用通义千问 qwen-max 模型
 python -m src.main --provider qwen --model qwen-max
+```
 
-# 使用OpenAI
+PowerShell（Windows）：
+
+```powershell
+$env:DASHSCOPE_API_KEY="your-key"  # 或 $env:QWEN_API_KEY
+python -m src.main --provider qwen
+python -m src.main --provider qwen --model qwen-max
+```
+
+### 5.3 OpenAI
+
+Bash：
+
+```bash
 export OPENAI_API_KEY="your-key"
 python -m src.main --provider openai
+```
 
-# 使用Anthropic
+PowerShell：
+
+```powershell
+$env:OPENAI_API_KEY="your-key"
+python -m src.main --provider openai
+```
+
+### 5.4 Anthropic
+
+Bash：
+
+```bash
 export ANTHROPIC_API_KEY="your-key"
 python -m src.main --provider anthropic
+```
 
-# 指定题目启动
+PowerShell：
+
+```powershell
+$env:ANTHROPIC_API_KEY="your-key"
+python -m src.main --provider anthropic
+```
+
+### 5.5 启动时指定题目 / 随机题目
+
+```bash
 python -m src.main --provider qwen -p "两数之和"
-
-# 随机题目启动
 python -m src.main --provider qwen --random
 ```
 
-### 测试API连接
+### 5.6 CLI 内置命令
+
+- **`problems`**：查看题目列表
+- **`select X`**：选择题目（名称包含 `X`）
+- **`new`**：随机开始新题目
+- **`status`**：查看当前状态（阶段、次数等）
+- **`help`**：帮助
+- **`quit` / `exit`**：退出
+
+## 6. Web Demo（可选）
+
+本仓库提供了一个可选的 Web Demo 位于 `frontend/`（FastAPI + 静态页面）。
+
+- 相关说明见：`frontend/README.md`
+- 启动方式（示例）：
 
 ```bash
-export DASHSCOPE_API_KEY="your-key"
-python test_qwen.py
+python frontend/web_server.py
+# 或
+uvicorn frontend.web_server:app --reload --port 8000
 ```
 
-### CLI命令
+## 7. 配置
 
-- `problems` - 查看题目列表
-- `select X` - 选择题目
-- `new` - 随机开始新题目
-- `status` - 查看当前状态
-- `help` - 帮助
-- `quit` - 退出
+### 7.1 环境变量（用于 API Key）
 
-## 📁 项目结构
+| 变量 | 说明 |
+|------|------|
+| `DASHSCOPE_API_KEY` | 通义千问 API Key |
+| `QWEN_API_KEY` | 通义千问 API Key（别名） |
+| `OPENAI_API_KEY` | OpenAI API Key |
+| `ANTHROPIC_API_KEY` | Anthropic API Key |
 
-```
-interview-coach-v2/
-├── src/
-│   ├── models.py          # 核心数据模型
-│   ├── prompt_library.py  # Prompt生成库
-│   ├── llm_client.py      # LLM客户端（支持Mock/Qwen/OpenAI/Anthropic）
-│   ├── coach_engine.py    # 核心教练引擎
-│   ├── problem_library.py # 题库
-│   └── main.py            # 主应用入口
-├── tests/
-│   └── test_coach.py      # 测试套件
-├── config/
-│   └── settings.py        # 配置管理
-├── test_qwen.py           # 通义千问API测试脚本
-├── requirements.txt
-└── README.md
-```
+### 7.2 命令行参数（CLI）
 
-## 🔧 核心模块
+| 参数 | 说明 |
+|------|------|
+| `--provider` | `mock` / `qwen` / `openai` / `anthropic` |
+| `--model` | 模型名（例如 `qwen-plus` / `qwen-max` / `gpt-4`） |
+| `--problem`, `-p` | 指定题目名称 |
+| `--random`, `-r` | 随机题目 |
+| `--api-key` | API Key（也可用环境变量） |
 
-### 1. 数据模型 (`models.py`)
+## 8. 题库
 
-- `Session`: 会话状态管理
-- `SessionPhase`: 会话阶段枚举
-- `GuidanceState`: 引导状态追踪（包含尝试次数）
-- `FollowUpState`: 追问状态追踪
-
-### 2. Prompt库 (`prompt_library.py`)
-
-- 意图识别Prompt
-- 代码评估Prompt
-- 引导对话Prompt（支持3级提示强度）
-- 追问生成Prompt
-- 教学Prompt
-
-### 3. LLM客户端 (`llm_client.py`)
-
-- `MockLLMClient`: 开发/测试用
-- `QwenClient`: 通义千问（推荐）
-- `OpenAIClient`: OpenAI API
-- `AnthropicClient`: Anthropic API
-
-### 4. 教练引擎 (`coach_engine.py`)
-
-核心控制器，处理：
-- 意图识别
-- 代码评估
-- 状态转换
-- 对话生成
-
-## 🧪 测试
-
-```bash
-# 运行所有测试
-python -m pytest tests/
-
-# 测试通义千问连接
-python test_qwen.py
-```
-
-## ⚙️ 配置
-
-### 环境变量
-
-| 变量 | 说明 | 默认值 |
-|------|------|--------|
-| `DASHSCOPE_API_KEY` | 通义千问API密钥 | - |
-| `QWEN_API_KEY` | 通义千问API密钥(别名) | - |
-| `OPENAI_API_KEY` | OpenAI密钥 | - |
-| `ANTHROPIC_API_KEY` | Anthropic密钥 | - |
-
-### 命令行参数
-
-| 参数 | 说明 | 示例 |
-|------|------|------|
-| `--provider` | LLM提供商 | `qwen`, `openai`, `anthropic`, `mock` |
-| `--model` | 模型名称 | `qwen-plus`, `qwen-max`, `gpt-4` |
-| `--problem`, `-p` | 指定题目 | `"两数之和"` |
-| `--random`, `-r` | 随机题目 | - |
-| `--api-key` | API密钥 | - |
-
-### 通义千问模型选择
-
-| 模型 | 特点 | 推荐场景 |
-|------|------|----------|
-| `qwen-turbo` | 快速、成本低 | 测试、简单对话 |
-| `qwen-plus` | 平衡 | **日常使用（默认）** |
-| `qwen-max` | 最强能力 | 复杂推理 |
-
-## 📚 题库
-
-内置8道经典算法题：
+题库与测试用例位于 `src/problem_library.py`。内置题目包含：
 
 | 题目 | 难度 |
 |------|------|
-| 两数之和 | 🟢 Easy |
-| 有效的括号 | 🟢 Easy |
-| 反转链表 | 🟢 Easy |
-| 二分查找 | 🟢 Easy |
-| 合并两个有序链表 | 🟢 Easy |
-| 最大子数组和 | 🟡 Medium |
-| 爬楼梯 | 🟢 Easy |
-| 零钱兑换 | 🟡 Medium |
+| 两数之和 | Easy |
+| 有效的括号 | Easy |
+| 反转链表 | Easy |
+| 二分查找 | Easy |
+| 合并两个有序链表 | Easy |
+| 最大子数组和 | Medium |
+| 爬楼梯 | Easy |
+| 零钱兑换 | Medium |
 
-## 🔒 安全机制
+## 9. 测试与开发
 
-- LLM被明确指示不能直接给出答案
-- 多层Prompt约束防止答案泄露
-- 只有在5次引导失败后才会给出完整解答
+### 9.1 运行单元测试
 
-## 🛠️ 扩展
-
-### 添加新题目
-
-```python
-from src.models import Problem
-from src.problem_library import get_problem_library
-
-new_problem = Problem(
-    title="新题目",
-    description="题目描述...",
-    difficulty="medium",
-    expected_complexity="O(n)",
-    test_cases=[...]
-)
-
-library = get_problem_library()
-library.add_problem(new_problem)
+```bash
+python -m pytest tests/
 ```
 
-### 使用自定义LLM
+### 9.2 测试通义千问连接
 
-```python
-from src.llm_client import BaseLLMClient, set_llm_client
-
-class MyCustomLLM(BaseLLMClient):
-    def call(self, prompt, system_prompt=None):
-        # 你的实现
-        pass
-    
-    def call_json(self, prompt, system_prompt=None):
-        # 你的实现
-        pass
-
-set_llm_client(MyCustomLLM())
+```bash
+python test_qwen.py
 ```
 
-## 📝 License
+## 10. 常见问题（FAQ）
+
+### 10.1 我配置了 provider，但程序提示“无法连接”然后回退到 Mock？
+
+- 检查 API Key 环境变量是否已正确设置
+- 检查网络是否可访问对应 API
+- 尝试显式指定 `--model`
+
+### 10.2 Windows 下 `export` 不生效怎么办？
+
+请使用 PowerShell：
+
+```powershell
+$env:DASHSCOPE_API_KEY="your-key"
+```
+
+或使用 CMD：
+
+```bat
+set DASHSCOPE_API_KEY=your-key
+```
+
+## 11. License
 
 MIT
