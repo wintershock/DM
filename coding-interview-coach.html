@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法面试教练 | Coding Interview Coach</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            color: #1a1a2e;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        /* Cards */
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 
+                        0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        
+        .card-inner {
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        /* Header styles */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+        
+        .btn-icon {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-icon:hover {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        
+        /* Tags */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-easy {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .tag-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .tag-hard {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .tag-category {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        /* Code Editor */
+        .code-editor {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .code-editor-header {
+            background: #334155;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .code-editor-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .code-editor textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: #e2e8f0;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .code-editor textarea::placeholder {
+            color: #64748b;
+        }
+        
+        .line-numbers {
+            color: #64748b;
+            user-select: none;
+            text-align: right;
+            padding-right: 16px;
+            border-right: 1px solid #334155;
+        }
+        
+        /* Chat bubbles */
+        .chat-coach {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+            border-radius: 16px 16px 16px 4px;
+            border: 1px solid #dbeafe;
+        }
+        
+        .chat-user {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border-radius: 16px 16px 4px 16px;
+            border: 1px solid #d1fae5;
+        }
+        
+        /* Progress bar */
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .progress-step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Typing indicator */
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 100% { opacity: 0.4; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-4px); }
+        }
+        
+        /* Example block */
+        .example-block {
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+        }
+        
+        /* Avatar */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .avatar-coach {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .avatar-user {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        /* Input */
+        .input-area {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .input-area:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-area textarea {
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            width: 100%;
+        }
+        
+        /* Constraint item */
+        .constraint-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        .constraint-dot {
+            width: 4px;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 50%;
+        }
+        
+        /* Status badge */
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #16a34a;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Quick action button */
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action:hover {
+            background: #f8fafc;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        /* Panel header */
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Complexity badge */
+        .complexity-card {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border: 1px solid #e9d5ff;
+            border-radius: 12px;
+            padding: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // Icons
+        const Icons = {
+            Code: () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+            ),
+            Brain: () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
+                    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
+                </svg>
+            ),
+            Chat: () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+            ),
+            Play: () => (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+            ),
+            Send: () => (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            ),
+            Lightbulb: () => (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+                    <path d="M9 18h6"></path>
+                    <path d="M10 22h4"></path>
+                </svg>
+            ),
+            Refresh: () => (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 2v6h-6"></path>
+                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                    <path d="M3 22v-6h6"></path>
+                    <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+                </svg>
+            ),
+            Clock: () => (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            ),
+            Target: () => (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+            ),
+            BookOpen: () => (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+            ),
+            Zap: () => (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+            ),
+            CheckCircle: () => (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            )
+        };
+        
+        // Problem Library
+        const problemLibrary = [
+            {
+                id: 1,
+                title: "两数之和",
+                titleEn: "Two Sum",
+                difficulty: "easy",
+                tags: ["数组", "哈希表"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(n)",
+                description: `给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值 target 的那两个整数，并返回它们的数组下标。
+
+你可以假设每种输入只会对应一个答案，并且你不能使用两次相同的元素。
+
+你可以按任意顺序返回答案。`,
+                examples: [
+                    {
+                        input: "nums = [2,7,11,15], target = 9",
+                        output: "[0,1]",
+                        explanation: "因为 nums[0] + nums[1] == 9 ，返回 [0, 1]。"
+                    },
+                    {
+                        input: "nums = [3,2,4], target = 6",
+                        output: "[1,2]",
+                        explanation: ""
+                    },
+                    {
+                        input: "nums = [3,3], target = 6",
+                        output: "[0,1]",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "2 <= nums.length <= 10⁴",
+                    "-10⁹ <= nums[i] <= 10⁹",
+                    "-10⁹ <= target <= 10⁹",
+                    "只会存在一个有效答案"
+                ],
+                starterCode: `def twoSum(nums, target):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 2,
+                title: "有效的括号",
+                titleEn: "Valid Parentheses",
+                difficulty: "easy",
+                tags: ["栈", "字符串"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(n)",
+                description: `给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+
+有效字符串需满足：
+1. 左括号必须用相同类型的右括号闭合。
+2. 左括号必须以正确的顺序闭合。
+3. 每个右括号都有一个对应的相同类型的左括号。`,
+                examples: [
+                    {
+                        input: 's = "()"',
+                        output: "true",
+                        explanation: ""
+                    },
+                    {
+                        input: 's = "()[]{}"',
+                        output: "true",
+                        explanation: ""
+                    },
+                    {
+                        input: 's = "(]"',
+                        output: "false",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "1 <= s.length <= 10⁴",
+                    "s 仅由括号 '()[]{}' 组成"
+                ],
+                starterCode: `def isValid(s):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 3,
+                title: "合并两个有序链表",
+                titleEn: "Merge Two Sorted Lists",
+                difficulty: "easy",
+                tags: ["链表", "递归"],
+                timeComplexity: "O(n+m)",
+                spaceComplexity: "O(1)",
+                description: `将两个升序链表合并为一个新的升序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。`,
+                examples: [
+                    {
+                        input: "l1 = [1,2,4], l2 = [1,3,4]",
+                        output: "[1,1,2,3,4,4]",
+                        explanation: ""
+                    },
+                    {
+                        input: "l1 = [], l2 = []",
+                        output: "[]",
+                        explanation: ""
+                    },
+                    {
+                        input: "l1 = [], l2 = [0]",
+                        output: "[0]",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "两个链表的节点数目范围是 [0, 50]",
+                    "-100 <= Node.val <= 100",
+                    "l1 和 l2 均按非递减顺序排列"
+                ],
+                starterCode: `# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+def mergeTwoLists(l1, l2):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 4,
+                title: "最大子数组和",
+                titleEn: "Maximum Subarray",
+                difficulty: "medium",
+                tags: ["数组", "动态规划", "分治"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(1)",
+                description: `给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+子数组是数组中的一个连续部分。`,
+                examples: [
+                    {
+                        input: "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+                        output: "6",
+                        explanation: "连续子数组 [4,-1,2,1] 的和最大，为 6。"
+                    },
+                    {
+                        input: "nums = [1]",
+                        output: "1",
+                        explanation: ""
+                    },
+                    {
+                        input: "nums = [5,4,-1,7,8]",
+                        output: "23",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "1 <= nums.length <= 10⁵",
+                    "-10⁴ <= nums[i] <= 10⁴"
+                ],
+                starterCode: `def maxSubArray(nums):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 5,
+                title: "爬楼梯",
+                titleEn: "Climbing Stairs",
+                difficulty: "easy",
+                tags: ["动态规划", "记忆化搜索"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(1)",
+                description: `假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？`,
+                examples: [
+                    {
+                        input: "n = 2",
+                        output: "2",
+                        explanation: "有两种方法可以爬到楼顶：1. 1 阶 + 1 阶  2. 2 阶"
+                    },
+                    {
+                        input: "n = 3",
+                        output: "3",
+                        explanation: "有三种方法可以爬到楼顶：1. 1+1+1  2. 1+2  3. 2+1"
+                    }
+                ],
+                constraints: [
+                    "1 <= n <= 45"
+                ],
+                starterCode: `def climbStairs(n):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 6,
+                title: "二叉树的最大深度",
+                titleEn: "Maximum Depth of Binary Tree",
+                difficulty: "easy",
+                tags: ["树", "深度优先搜索", "广度优先搜索"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(h)",
+                description: `给定一个二叉树 root ，返回其最大深度。
+
+二叉树的最大深度是指从根节点到最远叶子节点的最长路径上的节点数。`,
+                examples: [
+                    {
+                        input: "root = [3,9,20,null,null,15,7]",
+                        output: "3",
+                        explanation: ""
+                    },
+                    {
+                        input: "root = [1,null,2]",
+                        output: "2",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "树中节点的数量在 [0, 10⁴] 区间内",
+                    "-100 <= Node.val <= 100"
+                ],
+                starterCode: `# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+def maxDepth(root):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 7,
+                title: "无重复字符的最长子串",
+                titleEn: "Longest Substring Without Repeating Characters",
+                difficulty: "medium",
+                tags: ["哈希表", "字符串", "滑动窗口"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(min(n,m))",
+                description: `给定一个字符串 s ，请你找出其中不含有重复字符的最长子串的长度。`,
+                examples: [
+                    {
+                        input: 's = "abcabcbb"',
+                        output: "3",
+                        explanation: "因为无重复字符的最长子串是 \"abc\"，所以其长度为 3。"
+                    },
+                    {
+                        input: 's = "bbbbb"',
+                        output: "1",
+                        explanation: "因为无重复字符的最长子串是 \"b\"，所以其长度为 1。"
+                    },
+                    {
+                        input: 's = "pwwkew"',
+                        output: "3",
+                        explanation: "因为无重复字符的最长子串是 \"wke\"，所以其长度为 3。"
+                    }
+                ],
+                constraints: [
+                    "0 <= s.length <= 5 * 10⁴",
+                    "s 由英文字母、数字、符号和空格组成"
+                ],
+                starterCode: `def lengthOfLongestSubstring(s):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 8,
+                title: "三数之和",
+                titleEn: "3Sum",
+                difficulty: "medium",
+                tags: ["数组", "双指针", "排序"],
+                timeComplexity: "O(n²)",
+                spaceComplexity: "O(1)",
+                description: `给你一个整数数组 nums ，判断是否存在三元组 [nums[i], nums[j], nums[k]] 满足 i != j、i != k 且 j != k ，同时还满足 nums[i] + nums[j] + nums[k] == 0 。请你返回所有和为 0 且不重复的三元组。
+
+注意：答案中不可以包含重复的三元组。`,
+                examples: [
+                    {
+                        input: "nums = [-1,0,1,2,-1,-4]",
+                        output: "[[-1,-1,2],[-1,0,1]]",
+                        explanation: "nums[0] + nums[1] + nums[2] = -1 + 0 + 1 = 0，nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0，nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0。不同的三元组是 [-1,0,1] 和 [-1,-1,2]。"
+                    },
+                    {
+                        input: "nums = [0,1,1]",
+                        output: "[]",
+                        explanation: "唯一可能的三元组和不为 0。"
+                    },
+                    {
+                        input: "nums = [0,0,0]",
+                        output: "[[0,0,0]]",
+                        explanation: "唯一可能的三元组和为 0。"
+                    }
+                ],
+                constraints: [
+                    "3 <= nums.length <= 3000",
+                    "-10⁵ <= nums[i] <= 10⁵"
+                ],
+                starterCode: `def threeSum(nums):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 9,
+                title: "反转链表",
+                titleEn: "Reverse Linked List",
+                difficulty: "easy",
+                tags: ["链表", "递归"],
+                timeComplexity: "O(n)",
+                spaceComplexity: "O(1)",
+                description: `给你单链表的头节点 head ，请你反转链表，并返回反转后的链表。`,
+                examples: [
+                    {
+                        input: "head = [1,2,3,4,5]",
+                        output: "[5,4,3,2,1]",
+                        explanation: ""
+                    },
+                    {
+                        input: "head = [1,2]",
+                        output: "[2,1]",
+                        explanation: ""
+                    },
+                    {
+                        input: "head = []",
+                        output: "[]",
+                        explanation: ""
+                    }
+                ],
+                constraints: [
+                    "链表中节点的数目范围是 [0, 5000]",
+                    "-5000 <= Node.val <= 5000"
+                ],
+                starterCode: `# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+def reverseList(head):
+    # 在这里实现你的解法
+    pass`
+            },
+            {
+                id: 10,
+                title: "LRU 缓存",
+                titleEn: "LRU Cache",
+                difficulty: "hard",
+                tags: ["设计", "哈希表", "链表", "双向链表"],
+                timeComplexity: "O(1)",
+                spaceComplexity: "O(capacity)",
+                description: `请你设计并实现一个满足 LRU (最近最少使用) 缓存约束的数据结构。
+
+实现 LRUCache 类：
+• LRUCache(int capacity) 以正整数作为容量 capacity 初始化 LRU 缓存
+• int get(int key) 如果关键字 key 存在于缓存中，则返回关键字的值，否则返回 -1
+• void put(int key, int value) 如果关键字 key 已经存在，则变更其数据值 value；如果不存在，则向缓存中插入该组 key-value。如果插入操作导致关键字数量超过 capacity，则应该逐出最久未使用的关键字。
+
+函数 get 和 put 必须以 O(1) 的平均时间复杂度运行。`,
+                examples: [
+                    {
+                        input: '["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]',
+                        output: "[null, null, null, 1, null, -1, null, -1, 3, 4]",
+                        explanation: "缓存容量为2，依次执行操作后的结果。"
+                    }
+                ],
+                constraints: [
+                    "1 <= capacity <= 3000",
+                    "0 <= key <= 10⁴",
+                    "0 <= value <= 10⁵",
+                    "最多调用 2 * 10⁵ 次 get 和 put"
+                ],
+                starterCode: `class LRUCache:
+    def __init__(self, capacity: int):
+        # 初始化缓存
+        pass
+
+    def get(self, key: int) -> int:
+        # 获取缓存值
+        pass
+
+    def put(self, key: int, value: int) -> None:
+        # 设置缓存值
+        pass`
+            }
+        ];
+        
+        // Problem Selector Modal Component
+        const ProblemSelectorModal = ({ isOpen, onClose, problems, currentProblemId, onSelectProblem }) => {
+            const [filter, setFilter] = useState('all');
+            const [searchQuery, setSearchQuery] = useState('');
+            
+            if (!isOpen) return null;
+            
+            const filteredProblems = problems.filter(p => {
+                const matchesDifficulty = filter === 'all' || p.difficulty === filter;
+                const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                     p.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                     p.tags.some(tag => tag.includes(searchQuery));
+                return matchesDifficulty && matchesSearch;
+            });
+            
+            return (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    backdropFilter: 'blur(4px)'
+                }} onClick={onClose}>
+                    <div className="card" style={{
+                        width: '700px',
+                        maxHeight: '80vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden'
+                    }} onClick={e => e.stopPropagation()}>
+                        {/* Modal Header */}
+                        <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <h2 style={{ fontSize: '20px', fontWeight: 600 }}>📚 选择题目</h2>
+                                <button onClick={onClose} style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '24px',
+                                    cursor: 'pointer',
+                                    color: '#94a3b8',
+                                    lineHeight: 1
+                                }}>×</button>
+                            </div>
+                            
+                            {/* Search */}
+                            <div style={{
+                                display: 'flex',
+                                gap: '12px',
+                                alignItems: 'center'
+                            }}>
+                                <input
+                                    type="text"
+                                    placeholder="搜索题目名称或标签..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '10px 14px',
+                                        border: '2px solid #e2e8f0',
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        transition: 'border-color 0.2s'
+                                    }}
+                                />
+                                
+                                {/* Difficulty Filter */}
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {[
+                                        { key: 'all', label: '全部' },
+                                        { key: 'easy', label: '简单' },
+                                        { key: 'medium', label: '中等' },
+                                        { key: 'hard', label: '困难' }
+                                    ].map(f => (
+                                        <button
+                                            key={f.key}
+                                            onClick={() => setFilter(f.key)}
+                                            style={{
+                                                padding: '8px 14px',
+                                                borderRadius: '20px',
+                                                border: filter === f.key ? 'none' : '1px solid #e2e8f0',
+                                                background: filter === f.key 
+                                                    ? (f.key === 'easy' ? '#dcfce7' : f.key === 'medium' ? '#fef3c7' : f.key === 'hard' ? '#fee2e2' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')
+                                                    : 'white',
+                                                color: filter === f.key
+                                                    ? (f.key === 'easy' ? '#16a34a' : f.key === 'medium' ? '#d97706' : f.key === 'hard' ? '#dc2626' : 'white')
+                                                    : '#64748b',
+                                                fontSize: '13px',
+                                                fontWeight: 500,
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            {f.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Problem List */}
+                        <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+                            {filteredProblems.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                                    没有找到匹配的题目
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {filteredProblems.map(problem => (
+                                        <div
+                                            key={problem.id}
+                                            onClick={() => onSelectProblem(problem)}
+                                            style={{
+                                                padding: '16px',
+                                                borderRadius: '12px',
+                                                border: problem.id === currentProblemId ? '2px solid #667eea' : '1px solid #e2e8f0',
+                                                background: problem.id === currentProblemId ? '#f8f7ff' : 'white',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                <div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                                                        <span style={{ fontWeight: 600, fontSize: '15px' }}>{problem.title}</span>
+                                                        <span style={{ color: '#94a3b8', fontSize: '13px' }}>{problem.titleEn}</span>
+                                                        {problem.id === currentProblemId && (
+                                                            <span style={{
+                                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                                color: 'white',
+                                                                padding: '2px 8px',
+                                                                borderRadius: '10px',
+                                                                fontSize: '11px',
+                                                                fontWeight: 500
+                                                            }}>当前</span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                        <span className={`tag tag-${problem.difficulty}`} style={{ fontSize: '11px', padding: '2px 8px' }}>
+                                                            {problem.difficulty === 'easy' ? '简单' : problem.difficulty === 'medium' ? '中等' : '困难'}
+                                                        </span>
+                                                        {problem.tags.map((tag, i) => (
+                                                            <span key={i} className="tag tag-category" style={{ fontSize: '11px', padding: '2px 8px' }}>
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: 'right', fontSize: '12px', color: '#94a3b8' }}>
+                                                    <div>时间: <span className="code-font" style={{ color: '#059669' }}>{problem.timeComplexity}</span></div>
+                                                    <div>空间: <span className="code-font" style={{ color: '#2563eb' }}>{problem.spaceComplexity}</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Modal Footer */}
+                        <div style={{ padding: '16px 20px', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '13px', color: '#64748b' }}>
+                                    共 {filteredProblems.length} 道题目
+                                </span>
+                                <button onClick={onClose} className="btn-secondary" style={{ padding: '8px 20px' }}>
+                                    关闭
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Stages
+        const stages = [
+            { id: 0, name: "题意确认", icon: "📋" },
+            { id: 1, name: "思路口述", icon: "💭" },
+            { id: 2, name: "复杂度分析", icon: "📊" },
+            { id: 3, name: "代码实现", icon: "💻" },
+            { id: 4, name: "边界检查", icon: "🔍" },
+            { id: 5, name: "Follow-up", icon: "🚀" },
+            { id: 6, name: "总结回顾", icon: "📝" }
+        ];
+        
+        // Initial conversation
+        const initialConversation = [
+            {
+                role: "coach",
+                content: "你好！我是你的算法面试教练 👋\n\n今天我们来练习「两数之和」这道经典题目。在开始之前，请先仔细阅读左侧的题目，然后用你自己的话复述一下题目的要求，确保你理解了题意。",
+                stage: 0
+            }
+        ];
+        
+        // Problem Panel
+        const ProblemPanel = ({ problem, onChangeProblem }) => {
+            return (
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="panel-header">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div className="panel-title">
+                                <div className="panel-icon" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}>
+                                    <Icons.BookOpen />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '2px' }}>{problem.title}</h2>
+                                    <p style={{ fontSize: '13px', color: '#94a3b8' }}>{problem.titleEn}</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={onChangeProblem}
+                                className="btn-icon"
+                                title="更换题目"
+                                style={{ marginLeft: '8px' }}
+                            >
+                                <Icons.Refresh />
+                            </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
+                            <span className={`tag tag-${problem.difficulty}`}>
+                                {problem.difficulty === 'easy' ? '简单' : problem.difficulty === 'medium' ? '中等' : '困难'}
+                            </span>
+                            {problem.tags.map((tag, i) => (
+                                <span key={i} className="tag tag-category">{tag}</span>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '10px' }}>题目描述</h3>
+                            <p style={{ fontSize: '14px', lineHeight: 1.7, color: '#334155', whiteSpace: 'pre-line' }}>
+                                {problem.description}
+                            </p>
+                        </div>
+                        
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '12px' }}>示例</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {problem.examples.map((example, i) => (
+                                    <div key={i} className="example-block">
+                                        <div className="code-font" style={{ fontSize: '13px', marginBottom: '6px' }}>
+                                            <span style={{ color: '#64748b' }}>输入：</span>
+                                            <span style={{ color: '#059669' }}>{example.input}</span>
+                                        </div>
+                                        <div className="code-font" style={{ fontSize: '13px' }}>
+                                            <span style={{ color: '#64748b' }}>输出：</span>
+                                            <span style={{ color: '#2563eb' }}>{example.output}</span>
+                                        </div>
+                                        {example.explanation && (
+                                            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>
+                                                💡 {example.explanation}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '10px' }}>提示条件</h3>
+                            <div>
+                                {problem.constraints.map((constraint, i) => (
+                                    <div key={i} className="constraint-item">
+                                        <span className="constraint-dot"></span>
+                                        <span className="code-font">{constraint}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="complexity-card">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                <Icons.Target />
+                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#7c3aed' }}>目标复杂度</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '24px' }}>
+                                <div>
+                                    <span style={{ fontSize: '12px', color: '#64748b' }}>时间复杂度</span>
+                                    <div className="code-font" style={{ fontSize: '16px', fontWeight: 600, color: '#059669', marginTop: '2px' }}>
+                                        {problem.timeComplexity}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span style={{ fontSize: '12px', color: '#64748b' }}>空间复杂度</span>
+                                    <div className="code-font" style={{ fontSize: '16px', fontWeight: 600, color: '#2563eb', marginTop: '2px' }}>
+                                        {problem.spaceComplexity}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Code Editor
+        const CodeEditor = ({ code, setCode, onRun, onSubmit }) => {
+            const lines = code.split('\n');
+            const lineNumbersRef = useRef(null);
+            
+            const handleScroll = (e) => {
+                if (lineNumbersRef.current) {
+                    lineNumbersRef.current.scrollTop = e.target.scrollTop;
+                }
+            };
+            
+            const handleKeyDown = (e) => {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = e.target.selectionStart;
+                    const end = e.target.selectionEnd;
+                    const newCode = code.substring(0, start) + '    ' + code.substring(end);
+                    setCode(newCode);
+                    setTimeout(() => {
+                        e.target.selectionStart = e.target.selectionEnd = start + 4;
+                    }, 0);
+                }
+            };
+            
+            return (
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="panel-title">
+                            <div className="panel-icon" style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' }}>
+                                <Icons.Code />
+                            </div>
+                            <div>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '2px' }}>代码编辑器</h2>
+                                <p style={{ fontSize: '13px', color: '#94a3b8' }}>Python 3</p>
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={onRun} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px' }}>
+                                <Icons.Play />
+                                运行
+                            </button>
+                            <button onClick={onSubmit} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Icons.CheckCircle />
+                                提交代码
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, padding: '20px', overflow: 'hidden' }}>
+                        <div className="code-editor" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <div className="code-editor-header">
+                                <div className="code-editor-dot" style={{ background: '#ef4444' }}></div>
+                                <div className="code-editor-dot" style={{ background: '#f59e0b' }}></div>
+                                <div className="code-editor-dot" style={{ background: '#22c55e' }}></div>
+                                <span style={{ marginLeft: '12px', color: '#94a3b8', fontSize: '13px' }}>solution.py</span>
+                            </div>
+                            
+                            <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+                                <div 
+                                    ref={lineNumbersRef}
+                                    className="line-numbers code-font"
+                                    style={{ padding: '16px 0', fontSize: '14px', lineHeight: 1.6, overflow: 'hidden', minWidth: '50px' }}
+                                >
+                                    {lines.map((_, i) => (
+                                        <div key={i + 1}>{i + 1}</div>
+                                    ))}
+                                </div>
+                                
+                                <textarea
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    onScroll={handleScroll}
+                                    onKeyDown={handleKeyDown}
+                                    className="code-font"
+                                    style={{ flex: 1, padding: '16px' }}
+                                    placeholder="# 在这里编写你的代码..."
+                                    spellCheck="false"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#94a3b8' }}>
+                            <span>行 {lines.length}</span>
+                            <span>字符 {code.length}</span>
+                        </div>
+                        <div className="status-badge">
+                            <span className="status-dot"></span>
+                            准备就绪
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Chat Panel
+        const ChatPanel = ({ conversation, currentStage, onSendMessage, isTyping, onChangeProblem }) => {
+            const [input, setInput] = useState('');
+            const messagesEndRef = useRef(null);
+            
+            useEffect(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [conversation, isTyping]);
+            
+            const handleSend = () => {
+                if (input.trim()) {
+                    onSendMessage(input.trim());
+                    setInput('');
+                }
+            };
+            
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            };
+            
+            return (
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div className="panel-header">
+                        <div className="panel-title">
+                            <div className="panel-icon" style={{ background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' }}>
+                                <Icons.Chat />
+                            </div>
+                            <div>
+                                <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '2px' }}>面试教练</h2>
+                                <p style={{ fontSize: '13px', color: '#94a3b8' }}>Socratic Coaching</p>
+                            </div>
+                        </div>
+                        
+                        <div style={{ marginTop: '16px' }}>
+                            <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                                {stages.map((stage, i) => (
+                                    <div 
+                                        key={stage.id}
+                                        className={`progress-step ${i < currentStage ? 'completed' : ''} ${i === currentStage ? 'active' : ''}`}
+                                    />
+                                ))}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748b' }}>
+                                <span>{stages[currentStage]?.icon}</span>
+                                <span>当前阶段：<strong style={{ color: '#475569' }}>{stages[currentStage]?.name}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {conversation.map((msg, i) => (
+                                <div 
+                                    key={i} 
+                                    className={msg.role === 'coach' ? 'chat-coach' : 'chat-user'}
+                                    style={{ padding: '14px 16px', maxWidth: '95%', alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                        <div className={`avatar ${msg.role === 'coach' ? 'avatar-coach' : 'avatar-user'}`}>
+                                            {msg.role === 'coach' ? '🎓' : '👤'}
+                                        </div>
+                                        <span style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>
+                                            {msg.role === 'coach' ? '面试教练' : '你'}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '14px', lineHeight: 1.7, color: '#334155', whiteSpace: 'pre-line', paddingLeft: '42px' }}>
+                                        {msg.content}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {isTyping && (
+                                <div className="chat-coach" style={{ padding: '14px 16px', alignSelf: 'flex-start' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                        <div className="avatar avatar-coach">🎓</div>
+                                        <span style={{ fontSize: '13px', fontWeight: 500, color: '#64748b' }}>面试教练</span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '6px', paddingLeft: '42px' }}>
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div ref={messagesEndRef} />
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '16px 20px', borderTop: '1px solid #f1f5f9' }}>
+                        <div className="input-area" style={{ padding: '12px 16px', display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                            <textarea
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="输入你的回答或提问..."
+                                style={{ flex: 1, fontSize: '14px', lineHeight: 1.5, maxHeight: '100px' }}
+                                rows={1}
+                            />
+                            <button 
+                                onClick={handleSend}
+                                disabled={!input.trim()}
+                                className="btn-primary"
+                                style={{ 
+                                    padding: '10px', 
+                                    borderRadius: '10px',
+                                    opacity: input.trim() ? 1 : 0.5,
+                                    cursor: input.trim() ? 'pointer' : 'not-allowed'
+                                }}
+                            >
+                                <Icons.Send />
+                            </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <button className="quick-action">
+                                <Icons.Lightbulb />
+                                请求提示
+                            </button>
+                            <button className="quick-action" onClick={onChangeProblem}>
+                                <Icons.Refresh />
+                                换一道题
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Main App
+        const App = () => {
+            const [currentProblem, setCurrentProblem] = useState(problemLibrary[0]);
+            const [code, setCode] = useState(problemLibrary[0].starterCode);
+            const [conversation, setConversation] = useState(initialConversation);
+            const [currentStage, setCurrentStage] = useState(0);
+            const [isTyping, setIsTyping] = useState(false);
+            const [showProblemSelector, setShowProblemSelector] = useState(false);
+            
+            const handleSelectProblem = (problem) => {
+                setCurrentProblem(problem);
+                setCode(problem.starterCode);
+                setCurrentStage(0);
+                setConversation([{
+                    role: "coach",
+                    content: `好的，让我们来练习「${problem.title}」这道${problem.difficulty === 'easy' ? '简单' : problem.difficulty === 'medium' ? '中等' : '困难'}题！👋\n\n请先仔细阅读左侧的题目描述，然后用你自己的话复述一下题目的要求，确保你理解了题意。`,
+                    stage: 0
+                }]);
+                setShowProblemSelector(false);
+            };
+            
+            const handleSendMessage = (message) => {
+                setConversation(prev => [...prev, { role: 'user', content: message }]);
+                setIsTyping(true);
+                
+                setTimeout(() => {
+                    setIsTyping(false);
+                    
+                    let response = "";
+                    let nextStage = currentStage;
+                    
+                    if (currentStage === 0) {
+                        response = `很好！你理解得很到位 ✨
+
+现在让我们进入下一个阶段。请先不要急着写代码，先用语言描述一下你打算如何解决这个问题。
+
+🤔 你能想到最直观的解法是什么？它的时间复杂度是多少？`;
+                        nextStage = 1;
+                    } else if (currentStage === 1) {
+                        response = `不错的思路！👍
+
+暴力解法确实可以工作，但时间复杂度是 O(n²)。让我问你一个问题：
+
+💡 当你在遍历数组时，对于每个数字 nums[i]，你实际上在找什么？有没有办法更快地找到它？
+
+提示：想想有什么数据结构可以实现 O(1) 的查找。`;
+                        nextStage = 2;
+                    } else {
+                        response = `很好的分析！使用哈希表确实可以将时间复杂度优化到 O(n) 🎯
+
+现在你可以开始写代码了。记住：
+• 边写边解释你的思路
+• 注意边界条件的处理
+• 完成后我们会一起检查`;
+                        nextStage = 3;
+                    }
+                    
+                    setConversation(prev => [...prev, { role: 'coach', content: response, stage: nextStage }]);
+                    setCurrentStage(nextStage);
+                }, 1500);
+            };
+            
+            const handleRun = () => {
+                alert('运行代码功能 - 这里会执行你的代码并显示结果');
+            };
+            
+            const handleSubmit = () => {
+                setIsTyping(true);
+                
+                setTimeout(() => {
+                    setIsTyping(false);
+                    setConversation(prev => [...prev, {
+                        role: 'coach',
+                        content: `我看到你提交了代码，让我来看看... 🔍
+
+代码整体结构不错！不过我注意到几个地方值得思考：
+
+1️⃣ 你考虑过空数组的情况吗？
+2️⃣ 如果数组中有重复元素会怎样？
+3️⃣ 返回值的顺序有要求吗？
+
+请思考一下这些边界情况，然后修改你的代码。`,
+                        stage: 4
+                    }]);
+                    setCurrentStage(4);
+                }, 2000);
+            };
+            
+            return (
+                <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+                    {/* Problem Selector Modal */}
+                    <ProblemSelectorModal
+                        isOpen={showProblemSelector}
+                        onClose={() => setShowProblemSelector(false)}
+                        problems={problemLibrary}
+                        currentProblemId={currentProblem.id}
+                        onSelectProblem={handleSelectProblem}
+                    />
+                    
+                    {/* Header */}
+                    <header className="header" style={{ padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <h1 style={{ fontSize: '20px', fontWeight: 700 }}>🎯 算法面试教练</h1>
+                            <span style={{ 
+                                fontSize: '11px', 
+                                padding: '4px 10px', 
+                                background: 'rgba(255,255,255,0.2)', 
+                                borderRadius: '20px',
+                                fontWeight: 500
+                            }}>
+                                Beta
+                            </span>
+                            <button 
+                                onClick={() => setShowProblemSelector(true)}
+                                style={{
+                                    padding: '6px 14px',
+                                    background: 'rgba(255,255,255,0.15)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    borderRadius: '20px',
+                                    color: 'white',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                📚 题库 ({problemLibrary.length})
+                            </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', opacity: 0.9 }}>
+                                <Icons.Clock />
+                                <span>练习时间: 12:34</span>
+                            </div>
+                            <div style={{ 
+                                width: '36px', 
+                                height: '36px', 
+                                borderRadius: '50%', 
+                                background: 'rgba(255,255,255,0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 600
+                            }}>
+                                K
+                            </div>
+                        </div>
+                    </header>
+                    
+                    {/* Main Content */}
+                    <main style={{ flex: 1, display: 'flex', padding: '20px', gap: '20px', overflow: 'hidden' }}>
+                        {/* Left - Problem */}
+                        <div className="card" style={{ width: '28%', minWidth: '320px', overflow: 'hidden' }}>
+                            <ProblemPanel 
+                                problem={currentProblem} 
+                                onChangeProblem={() => setShowProblemSelector(true)}
+                            />
+                        </div>
+                        
+                        {/* Center - Code Editor */}
+                        <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
+                            <CodeEditor 
+                                code={code} 
+                                setCode={setCode}
+                                onRun={handleRun}
+                                onSubmit={handleSubmit}
+                            />
+                        </div>
+                        
+                        {/* Right - Chat */}
+                        <div className="card" style={{ width: '30%', minWidth: '360px', overflow: 'hidden' }}>
+                            <ChatPanel 
+                                conversation={conversation}
+                                currentStage={currentStage}
+                                onSendMessage={handleSendMessage}
+                                isTyping={isTyping}
+                                onChangeProblem={() => setShowProblemSelector(true)}
+                            />
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
